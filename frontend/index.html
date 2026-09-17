@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MediCore &mdash; Hospital Management Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <i data-lucide="activity"></i>
+      </span>
+      <div class="brand-text">
+        <strong>MediCore</strong>
+        <small>Hospital Management</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Primary">
+      <p class="nav-group-label">Overview</p>
+      <a href="#dashboard" class="nav-link" data-nav="dashboard">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+
+      <p class="nav-group-label">Care Records</p>
+      <a href="#patients" class="nav-link" data-nav="patients">
+        <i data-lucide="users"></i><span>Patients</span>
+      </a>
+      <a href="#doctors" class="nav-link" data-nav="doctors">
+        <i data-lucide="stethoscope"></i><span>Doctors</span>
+      </a>
+      <a href="#hospitals" class="nav-link" data-nav="hospitals">
+        <i data-lucide="building-2"></i><span>Hospitals</span>
+      </a>
+      <a href="#consultations" class="nav-link" data-nav="consultations">
+        <i data-lucide="video"></i><span>Consultations</span>
+      </a>
+
+      <p class="nav-group-label">Clinical &amp; Billing</p>
+      <a href="#prescriptions" class="nav-link" data-nav="prescriptions">
+        <i data-lucide="clipboard-list"></i><span>Prescriptions</span>
+      </a>
+      <a href="#medicines" class="nav-link" data-nav="medicines">
+        <i data-lucide="pill"></i><span>Medicines</span>
+      </a>
+      <a href="#tests" class="nav-link" data-nav="tests">
+        <i data-lucide="flask-conical"></i><span>Tests</span>
+      </a>
+      <a href="#payments" class="nav-link" data-nav="payments">
+        <i data-lucide="credit-card"></i><span>Payments</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="api-status" id="apiStatus">
+        <span class="status-dot" id="apiStatusDot"></span>
+        <span id="apiStatusText">Checking API&hellip;</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="menuToggle" aria-label="Toggle navigation">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="topbar-heading">
+        <p class="breadcrumb">MediCore / <span id="breadcrumbCurrent">Dashboard</span></p>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+
+      <div class="topbar-actions">
+        <label class="search-field" id="globalSearchWrap">
+          <i data-lucide="search"></i>
+          <input type="text" id="globalSearch" placeholder="Search this table&hellip;" autocomplete="off" />
+        </label>
+        <button class="icon-btn" id="refreshBtn" title="Refresh current view">
+          <i data-lucide="refresh-cw"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+
+      <!-- ===================== DASHBOARD ===================== -->
+      <section class="page active" id="page-dashboard" data-page="dashboard">
+        <div class="stat-grid" id="statGrid">
+          <!-- stat cards injected by JS -->
+        </div>
+
+        <div class="chart-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Consultations by Status</h2>
+            </div>
+            <div class="panel-body chart-wrap"><canvas id="chartConsultStatus"></canvas></div>
+            <div class="empty-state" id="emptyConsultStatus" hidden><i data-lucide="pie-chart"></i><p>No consultation data yet.</p></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Patients by City</h2>
+            </div>
+            <div class="panel-body chart-wrap"><canvas id="chartPatientsCity"></canvas></div>
+            <div class="empty-state" id="emptyPatientsCity" hidden><i data-lucide="map-pin"></i><p>No patient location data yet.</p></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Doctors by Specialization</h2>
+            </div>
+            <div class="panel-body chart-wrap"><canvas id="chartDoctorsSpec"></canvas></div>
+            <div class="empty-state" id="emptyDoctorsSpec" hidden><i data-lucide="stethoscope"></i><p>No specialization data yet.</p></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Payment Summary</h2>
+            </div>
+            <div class="panel-body chart-wrap"><canvas id="chartPayments"></canvas></div>
+            <div class="empty-state" id="emptyPayments" hidden><i data-lucide="credit-card"></i><p>No payment data yet.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== PATIENTS ===================== -->
+      <section class="page" id="page-patients" data-page="patients">
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <select id="patientGenderFilter" class="select-field">
+              <option value="">All genders</option>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+              <option value="O">Other</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addPatientBtn"><i data-lucide="plus"></i>Add Patient</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="patientsTable">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Gender</th><th>DOB</th><th>City / Area</th><th>Pincode</th><th>Phone</th><th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="patientsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="patientsLoading"><span class="spinner"></span>Loading patients&hellip;</div>
+          <div class="table-state empty-state" id="patientsEmpty" hidden><i data-lucide="users"></i><p>No patients found.</p><span>Add a patient to get started.</span></div>
+          <div class="table-state error-state" id="patientsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load patients.</p><button class="btn btn-ghost btn-sm" data-retry="patients">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== DOCTORS ===================== -->
+      <section class="page" id="page-doctors" data-page="doctors">
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <select id="doctorSpecFilter" class="select-field">
+              <option value="">All specializations</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addDoctorBtn"><i data-lucide="plus"></i>Add Doctor</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="doctorsTable">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Gender</th><th>DOB</th><th>Date Joined</th><th>License No</th><th>Experience</th><th>Specialization</th><th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="doctorsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="doctorsLoading"><span class="spinner"></span>Loading doctors&hellip;</div>
+          <div class="table-state empty-state" id="doctorsEmpty" hidden><i data-lucide="stethoscope"></i><p>No doctors found.</p><span>Add a doctor to get started.</span></div>
+          <div class="table-state error-state" id="doctorsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load doctors.</p><button class="btn btn-ghost btn-sm" data-retry="doctors">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== HOSPITALS ===================== -->
+      <section class="page" id="page-hospitals" data-page="hospitals">
+        <div class="toolbar">
+          <div class="toolbar-filters"></div>
+          <button class="btn btn-primary" id="addHospitalBtn"><i data-lucide="plus"></i>Add Hospital</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="hospitalsTable">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Street</th><th>Area</th><th>City</th><th>Pincode</th><th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="hospitalsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="hospitalsLoading"><span class="spinner"></span>Loading hospitals&hellip;</div>
+          <div class="table-state empty-state" id="hospitalsEmpty" hidden><i data-lucide="building-2"></i><p>No hospitals found.</p><span>Add a hospital to get started.</span></div>
+          <div class="table-state error-state" id="hospitalsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load hospitals.</p><button class="btn btn-ghost btn-sm" data-retry="hospitals">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== CONSULTATIONS ===================== -->
+      <section class="page" id="page-consultations" data-page="consultations">
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <select id="consultStatusFilter" class="select-field">
+              <option value="">All statuses</option>
+            </select>
+            <select id="consultModeFilter" class="select-field">
+              <option value="">All modes</option>
+              <option value="VIDEO">Video</option>
+              <option value="AUDIO">Audio</option>
+              <option value="CHAT">Chat</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addConsultationBtn"><i data-lucide="plus"></i>New Consultation</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="consultationsTable">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Patient</th><th>Doctor</th><th>Booking Date</th><th>Date</th><th>Time</th><th>Mode</th><th>Status</th><th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="consultationsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="consultationsLoading"><span class="spinner"></span>Loading consultations&hellip;</div>
+          <div class="table-state empty-state" id="consultationsEmpty" hidden><i data-lucide="video"></i><p>No consultations found.</p><span>Schedule a consultation to get started.</span></div>
+          <div class="table-state error-state" id="consultationsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load consultations.</p><button class="btn btn-ghost btn-sm" data-retry="consultations">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== PRESCRIPTIONS ===================== -->
+      <section class="page" id="page-prescriptions" data-page="prescriptions">
+        <div class="toolbar">
+          <div class="toolbar-filters"></div>
+          <button class="btn btn-primary" id="addPrescriptionBtn"><i data-lucide="plus"></i>Add Prescription</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="prescriptionsTable">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Consultation</th><th>Medicine</th><th>Test</th><th>Notes</th><th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="prescriptionsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="prescriptionsLoading"><span class="spinner"></span>Loading prescriptions&hellip;</div>
+          <div class="table-state empty-state" id="prescriptionsEmpty" hidden><i data-lucide="clipboard-list"></i><p>No prescriptions found.</p><span>Add a prescription to get started.</span></div>
+          <div class="table-state error-state" id="prescriptionsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load prescriptions.</p><button class="btn btn-ghost btn-sm" data-retry="prescriptions">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== MEDICINES ===================== -->
+      <section class="page" id="page-medicines" data-page="medicines">
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <select id="medicineTypeFilter" class="select-field">
+              <option value="">All types</option>
+              <option value="DRUG">Drug</option>
+              <option value="INJECTION">Injection</option>
+              <option value="TABLET">Tablet</option>
+              <option value="SYRUP">Syrup</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addMedicineBtn"><i data-lucide="plus"></i>Add Medicine</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="medicinesTable">
+              <thead><tr><th>ID</th><th>Medicine Name</th><th>Type</th><th class="col-actions">Actions</th></tr></thead>
+              <tbody id="medicinesTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="medicinesLoading"><span class="spinner"></span>Loading medicines&hellip;</div>
+          <div class="table-state empty-state" id="medicinesEmpty" hidden><i data-lucide="pill"></i><p>No medicines found.</p><span>Add a medicine to get started.</span></div>
+          <div class="table-state error-state" id="medicinesError" hidden><i data-lucide="alert-triangle"></i><p>Could not load medicines.</p><button class="btn btn-ghost btn-sm" data-retry="medicines">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== TESTS ===================== -->
+      <section class="page" id="page-tests" data-page="tests">
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <select id="testTypeFilter" class="select-field">
+              <option value="">All types</option>
+              <option value="BLOOD_TEST">Blood Test</option>
+              <option value="X_RAY">X-Ray</option>
+              <option value="URINE_TEST">Urine Test</option>
+              <option value="ECG">ECG</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addTestBtn"><i data-lucide="plus"></i>Add Test</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="testsTable">
+              <thead><tr><th>ID</th><th>Test Name</th><th>Type</th><th class="col-actions">Actions</th></tr></thead>
+              <tbody id="testsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="testsLoading"><span class="spinner"></span>Loading tests&hellip;</div>
+          <div class="table-state empty-state" id="testsEmpty" hidden><i data-lucide="flask-conical"></i><p>No tests found.</p><span>Add a test to get started.</span></div>
+          <div class="table-state error-state" id="testsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load tests.</p><button class="btn btn-ghost btn-sm" data-retry="tests">Retry</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== PAYMENTS ===================== -->
+      <section class="page" id="page-payments" data-page="payments">
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <select id="paymentMethodFilter" class="select-field">
+              <option value="">All methods</option>
+              <option value="COD">COD</option>
+              <option value="UPI">UPI</option>
+              <option value="CARD">Card</option>
+              <option value="NETBANKING">Netbanking</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="addPaymentBtn"><i data-lucide="plus"></i>Add Payment</button>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="data-table" id="paymentsTable">
+              <thead><tr><th>Payment ID</th><th>Consultation</th><th>Amount</th><th>Paid By</th><th>Method</th><th class="col-actions">Actions</th></tr></thead>
+              <tbody id="paymentsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-state" id="paymentsLoading"><span class="spinner"></span>Loading payments&hellip;</div>
+          <div class="table-state empty-state" id="paymentsEmpty" hidden><i data-lucide="credit-card"></i><p>No payments found.</p><span>Record a payment to get started.</span></div>
+          <div class="table-state error-state" id="paymentsError" hidden><i data-lucide="alert-triangle"></i><p>Could not load payments.</p><button class="btn btn-ghost btn-sm" data-retry="payments">Retry</button></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" id="modal">
+      <div class="modal-head">
+        <h3 id="modalTitle">Title</h3>
+        <button class="icon-btn" id="modalClose" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <!-- ============ LIBRARIES ============ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide-static/0.284.0/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <!-- ============ APP SCRIPTS ============ -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+  <script src="js/pages/patients.js"></script>
+  <script src="js/pages/doctors.js"></script>
+  <script src="js/pages/hospitals.js"></script>
+  <script src="js/pages/consultations.js"></script>
+  <script src="js/pages/prescriptions.js"></script>
+  <script src="js/pages/medicines.js"></script>
+  <script src="js/pages/tests.js"></script>
+  <script src="js/pages/payments.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
